@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws/external"
 	"github.com/aws/aws-sdk-go-v2/aws/ec2metadata"
+	"github.com/aws/aws-sdk-go-v2/aws/external"
 	. "github.com/mlabouardy/mon-put-instance-data/metrics"
 	. "github.com/mlabouardy/mon-put-instance-data/services"
 	"github.com/urfave/cli"
@@ -128,7 +128,7 @@ func main() {
 			panic("Unable to load SDK config")
 		}
 
-		if (c.String("region") == "default") {
+		if c.String("region") == "default" {
 			metadataSvc := ec2metadata.New(cfg)
 			if !metadataSvc.Available() {
 				log.Printf("Metadata service cannot be reached. Default us-east-1 region will be used")
