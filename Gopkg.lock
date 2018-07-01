@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/KyleBanks/dockerstats"
+  packages = ["."]
+  revision = "b5fec062e95314b143fdd732efd0c2b4750aad17"
+
+[[projects]]
   name = "github.com/StackExchange/wmi"
   packages = ["."]
   revision = "5d049714c4a64225c3c79a7cf7d02f7fb5b96338"
@@ -84,6 +90,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1a9a342fb9042d6cd479b3674eb75a1dbabfc4704ed021437821b98d7c1651b4"
+  inputs-digest = "02c529e2eadad38db521ee031172186fe114ffcfe45fdd0115f66424f1926826"
   solver-name = "gps-cdcl"
   solver-version = 1

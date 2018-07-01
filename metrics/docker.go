@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
+	"github.com/KyleBanks/dockerstats"
 	. "github.com/mlabouardy/mon-put-instance-data/services"
 	"github.com/shirou/gopsutil/docker"
 )
@@ -28,11 +29,16 @@ func getCgroupMountPath() (string, error) {
 	return "/sys/fs/cgroup", nil
 }
 
-// Collect CPU & Memory usage per Docker Container
+//Collect CPU & Memory usage per Docker Container
 func (d Docker) Collect(instanceID string, c CloudWatchService, namespace string) {
 	containers, err := docker.GetDockerStat()
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	containerStats, statsErr := dockerstats.Current()
+	if statsErr != nil {
+		log.Fatal(statsErr)
 	}
 
 	base, err := getCgroupMountPath()
@@ -41,6 +47,14 @@ func (d Docker) Collect(instanceID string, c CloudWatchService, namespace string
 	}
 
 	for _, container := range containers {
+		var stats dockerstats.Stats
+		for _, v := range containerStats {
+			if strings.HasPrefix(container.ContainerID, v.Container) {
+				stats = v
+				break
+			}
+		}
+
 		dimensions := make([]cloudwatch.Dimension, 0)
 		dimensionKey1 := "InstanceId"
 		dimensions = append(dimensions, cloudwatch.Dimension{
@@ -71,17 +85,11 @@ func (d Docker) Collect(instanceID string, c CloudWatchService, namespace string
 		containerMemoryData := constructMetricDatum("ContainerMemory", float64(containerMemory.MemUsageInBytes), cloudwatch.StandardUnitBytes, dimensions)
 		c.Publish(containerMemoryData, namespace)
 
-		containerCPU, err := docker.CgroupCPU(container.ContainerID, fmt.Sprintf("%s/cpuacct/docker", base))
-		if err != nil {
-			log.Fatal(err)
-		}
+		var iCpu float64 
+		fmt.Sscan(stats.CPU, &iCpu)
+		containerCPUUsageData := constructMetricDatum("ContainerCPUUsage", iCpu, cloudwatch.StandardUnitPercent, dimensions)
+		c.Publish(containerCPUUsageData, namespace)
 
-		containerCPUUserData := constructMetricDatum("ContainerCPUUser", float64(containerCPU.User), cloudwatch.StandardUnitSeconds, dimensions)
-		c.Publish(containerCPUUserData, namespace)
-
-		containerCPUSystemData := constructMetricDatum("ContainerCPUSystem", float64(containerCPU.System), cloudwatch.StandardUnitSeconds, dimensions)
-		c.Publish(containerCPUSystemData, namespace)
-
-		log.Printf("Docker - Container:%s Memory:%v User:%v System:%v\n", container.Name, containerMemory.MemMaxUsageInBytes, containerCPU.User, containerCPU.System)
+		log.Printf("Docker - Container:%s Memory:%v CPU:%v%%\n", container.Name, containerMemory.MemMaxUsageInBytes, iCpu)
 	}
 }
