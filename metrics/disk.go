@@ -12,7 +12,7 @@ import (
 type Disk struct{}
 
 // Collect Disk used & free space
-func (d Disk) Collect(instanceID string, c CloudWatchService, namespace string) {
+func (d Disk) Collect(instanceID string, c PubliserService, namespace string) {
 	diskMetrics, err := disk.Usage("/")
 	if err != nil {
 		log.Fatal(err)

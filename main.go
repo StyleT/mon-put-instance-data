@@ -42,13 +42,9 @@ func GetInstanceID() (string, error) {
 }
 
 // Collect metrics about enabled metric
-func Collect(metrics []Metric, c CloudWatchService, namespace string) {
-	id, err := GetInstanceID()
-	if err != nil {
-		log.Fatal(err)
-	}
+func Collect(metrics []Metric, c PubliserService, namespace string, instanceId string) {
 	for _, metric := range metrics {
-		metric.Collect(id, c, namespace)
+		metric.Collect(instanceId, c, namespace)
 	}
 }
 
@@ -98,6 +94,10 @@ func main() {
 			Usage: "Namespace for the metric data",
 			Value: "CustomMetrics",
 		},
+		cli.BoolFlag{
+			Name:  "dummy",
+			Usage: "Disables interaction with AWS and only prints data to stdout",
+		},
 	}
 	app.Action = func(c *cli.Context) error {
 		enabledMetrics := make([]string, 0)
@@ -128,7 +128,7 @@ func main() {
 			panic("Unable to load SDK config")
 		}
 
-		if c.String("region") == "default" {
+		if c.String("region") == "default" && !c.Bool("dummy") {
 			metadataSvc := ec2metadata.New(cfg)
 			if !metadataSvc.Available() {
 				log.Printf("Metadata service cannot be reached. Default us-east-1 region will be used")
@@ -146,16 +146,29 @@ func main() {
 			cfg.Region = c.String("region")
 		}
 
-		cloudWatch := CloudWatchService{
-			Config: cfg,
+		var service PubliserService
+		var instanceId string
+		if !c.Bool("dummy") {
+			service = CloudWatchService{
+				Config: cfg,
+			}
+			instanceId, err = GetInstanceID()
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			service = DummyService{}
+			instanceId = "i-1234567890abcdef0"
 		}
+		fmt.Printf("Instance ID: %s\n", instanceId)
+		
 
 		interval := c.Int("interval")
 
 		fmt.Printf("Features enabled: %s\n", strings.Join(enabledMetrics, ", "))
 
 		var collect = func() {
-			Collect(metrics, cloudWatch, c.String("namespace"))
+			Collect(metrics, service, c.String("namespace"), instanceId)
 		}
 
 		if c.Bool("once") {

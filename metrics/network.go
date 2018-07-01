@@ -12,7 +12,7 @@ import (
 type Network struct{}
 
 // Collect Network Traffic metrics
-func (n Network) Collect(instanceID string, c CloudWatchService, namespace string) {
+func (n Network) Collect(instanceID string, c PubliserService, namespace string) {
 	networkMetrics, err := net.IOCounters(false)
 	if err != nil {
 		log.Fatal(err)

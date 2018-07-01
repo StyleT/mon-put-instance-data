@@ -30,7 +30,7 @@ func getCgroupMountPath() (string, error) {
 }
 
 //Collect CPU & Memory usage per Docker Container
-func (d Docker) Collect(instanceID string, c CloudWatchService, namespace string) {
+func (d Docker) Collect(instanceID string, c PubliserService, namespace string) {
 	containers, err := docker.GetDockerStat()
 	if err != nil {
 		log.Fatal(err)

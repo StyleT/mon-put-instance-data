@@ -12,7 +12,7 @@ import (
 type Memory struct{}
 
 // Collect Memory utilization
-func (m Memory) Collect(instanceID string, c CloudWatchService, namespace string) {
+func (m Memory) Collect(instanceID string, c PubliserService, namespace string) {
 	memoryMetrics, err := mem.VirtualMemory()
 	if err != nil {
 		log.Fatal(err)

@@ -12,7 +12,7 @@ import (
 type Swap struct{}
 
 // Collect Swap usage
-func (d Swap) Collect(instanceID string, c CloudWatchService, namespace string) {
+func (d Swap) Collect(instanceID string, c PubliserService, namespace string) {
 	swapMetrics, err := mem.SwapMemory()
 	if err != nil {
 		log.Fatal(err)
