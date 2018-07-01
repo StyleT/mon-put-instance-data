@@ -6,4 +6,5 @@ import (
 
 type PubliserService interface {
 	Publish(metricData []cloudwatch.MetricDatum, namespace string)
+	GetContainer() []cloudwatch.MetricDatum
 }

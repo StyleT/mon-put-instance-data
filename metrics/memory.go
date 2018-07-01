@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
-	. "github.com/mlabouardy/mon-put-instance-data/services"
 	"github.com/shirou/gopsutil/mem"
 )
 
@@ -12,7 +11,7 @@ import (
 type Memory struct{}
 
 // Collect Memory utilization
-func (m Memory) Collect(instanceID string, c PubliserService, namespace string) {
+func (m Memory) Collect(instanceID string, c *[]cloudwatch.MetricDatum) {
 	memoryMetrics, err := mem.VirtualMemory()
 	if err != nil {
 		log.Fatal(err)
@@ -26,14 +25,11 @@ func (m Memory) Collect(instanceID string, c PubliserService, namespace string) 
 		},
 	}
 
-	memoryUtilizationData := constructMetricDatum("MemoryUtilization", memoryMetrics.UsedPercent, cloudwatch.StandardUnitPercent, dimensions)
-	c.Publish(memoryUtilizationData, namespace)
+	*c= append(*c, constructMetricDatum("MemoryUtilization", memoryMetrics.UsedPercent, cloudwatch.StandardUnitPercent, dimensions))
 
-	memoryUsedData := constructMetricDatum("MemoryUsed", float64(memoryMetrics.Used), cloudwatch.StandardUnitBytes, dimensions)
-	c.Publish(memoryUsedData, namespace)
+	*c= append(*c, constructMetricDatum("MemoryUsed", float64(memoryMetrics.Used), cloudwatch.StandardUnitBytes, dimensions))
 
-	memoryAvailableData := constructMetricDatum("MemoryAvailable", float64(memoryMetrics.Available), cloudwatch.StandardUnitBytes, dimensions)
-	c.Publish(memoryAvailableData, namespace)
+	*c= append(*c, constructMetricDatum("MemoryAvailable", float64(memoryMetrics.Available), cloudwatch.StandardUnitBytes, dimensions))
 
 	log.Printf("Memory - Utilization:%v%% Used:%v Available:%v\n", memoryMetrics.UsedPercent, memoryMetrics.Used, memoryMetrics.Available)
 }

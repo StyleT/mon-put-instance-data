@@ -24,3 +24,8 @@ func (c CloudWatchService) Publish(metricData []cloudwatch.MetricDatum, namespac
 		log.Fatal(err)
 	}
 }
+
+func (c CloudWatchService) GetContainer() []cloudwatch.MetricDatum {
+	var s []cloudwatch.MetricDatum
+	return s
+}

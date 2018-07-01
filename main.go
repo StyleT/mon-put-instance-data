@@ -43,9 +43,13 @@ func GetInstanceID() (string, error) {
 
 // Collect metrics about enabled metric
 func Collect(metrics []Metric, c PubliserService, namespace string, instanceId string) {
+	metricsContainer := c.GetContainer()
+
 	for _, metric := range metrics {
-		metric.Collect(instanceId, c, namespace)
+		metric.Collect(instanceId, &metricsContainer)
 	}
+
+	c.Publish(metricsContainer, namespace)
 }
 
 func main() {

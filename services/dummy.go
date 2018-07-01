@@ -15,3 +15,8 @@ func (c DummyService) Publish(metricData []cloudwatch.MetricDatum, namespace str
 		log.Printf("Metric data '%v' unit '%v' value '%f'", *row.MetricName, row.Unit, *row.Value)
 	}
 }
+
+func (c DummyService) GetContainer() []cloudwatch.MetricDatum {
+	var s []cloudwatch.MetricDatum
+	return s
+}

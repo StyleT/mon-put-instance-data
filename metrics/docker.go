@@ -9,7 +9,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/KyleBanks/dockerstats"
-	. "github.com/mlabouardy/mon-put-instance-data/services"
 	"github.com/shirou/gopsutil/docker"
 )
 
@@ -30,7 +29,7 @@ func getCgroupMountPath() (string, error) {
 }
 
 //Collect CPU & Memory usage per Docker Container
-func (d Docker) Collect(instanceID string, c PubliserService, namespace string) {
+func (d Docker) Collect(instanceID string, c *[]cloudwatch.MetricDatum) {
 	containers, err := docker.GetDockerStat()
 	if err != nil {
 		log.Fatal(err)
@@ -82,13 +81,11 @@ func (d Docker) Collect(instanceID string, c PubliserService, namespace string) 
 			log.Fatal(err)
 		}
 
-		containerMemoryData := constructMetricDatum("ContainerMemory", float64(containerMemory.MemUsageInBytes), cloudwatch.StandardUnitBytes, dimensions)
-		c.Publish(containerMemoryData, namespace)
+		*c= append(*c, constructMetricDatum("ContainerMemory", float64(containerMemory.MemUsageInBytes), cloudwatch.StandardUnitBytes, dimensions))
 
 		var iCpu float64 
 		fmt.Sscan(stats.CPU, &iCpu)
-		containerCPUUsageData := constructMetricDatum("ContainerCPUUsage", iCpu, cloudwatch.StandardUnitPercent, dimensions)
-		c.Publish(containerCPUUsageData, namespace)
+		*c= append(*c, constructMetricDatum("ContainerCPUUsage", iCpu, cloudwatch.StandardUnitPercent, dimensions))
 
 		log.Printf("Docker - Container:%s Memory:%v CPU:%v%%\n", container.Name, containerMemory.MemMaxUsageInBytes, iCpu)
 	}

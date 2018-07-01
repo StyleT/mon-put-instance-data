@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
-	. "github.com/mlabouardy/mon-put-instance-data/services"
 	"github.com/shirou/gopsutil/mem"
 )
 
@@ -12,7 +11,7 @@ import (
 type Swap struct{}
 
 // Collect Swap usage
-func (d Swap) Collect(instanceID string, c PubliserService, namespace string) {
+func (d Swap) Collect(instanceID string, c *[]cloudwatch.MetricDatum) {
 	swapMetrics, err := mem.SwapMemory()
 	if err != nil {
 		log.Fatal(err)
@@ -26,14 +25,11 @@ func (d Swap) Collect(instanceID string, c PubliserService, namespace string) {
 		},
 	}
 
-	swapUtilizationData := constructMetricDatum("SwapUtilization", swapMetrics.UsedPercent, cloudwatch.StandardUnitPercent, dimensions)
-	c.Publish(swapUtilizationData, namespace)
+	*c= append(*c, constructMetricDatum("SwapUtilization", swapMetrics.UsedPercent, cloudwatch.StandardUnitPercent, dimensions))
 
-	swapUsedData := constructMetricDatum("SwapUsed", float64(swapMetrics.Used), cloudwatch.StandardUnitBytes, dimensions)
-	c.Publish(swapUsedData, namespace)
+	*c= append(*c, constructMetricDatum("SwapUsed", float64(swapMetrics.Used), cloudwatch.StandardUnitBytes, dimensions))
 
-	swapFreeData := constructMetricDatum("SwapFree", float64(swapMetrics.Free), cloudwatch.StandardUnitBytes, dimensions)
-	c.Publish(swapFreeData, namespace)
+	*c= append(*c, constructMetricDatum("SwapFree", float64(swapMetrics.Free), cloudwatch.StandardUnitBytes, dimensions))
 
 	log.Printf("Swap - Utilization:%v%% Used:%v Free:%v\n", swapMetrics.UsedPercent, swapMetrics.Used, swapMetrics.Free)
 }
