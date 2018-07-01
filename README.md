@@ -46,7 +46,7 @@ mon-put-instance-data --memory --swap --disk --network --docker --duration 1
 Use the official Docker image:
 
 ```
-docker run -d -e AWS_INSTANCE_ID="" -e AWS_ACCESS_KEY_ID="" -e AWS_SECRET_ACCESS_KEY="" --name collector mlabouardy/mon-put-instance-data --memory --swap --interval 1
+docker run --rm -it --privileged -v /var/run/docker.sock:/var/run/docker.sock:ro -v /sys:/sys:ro stylet/mon-put-instance-data --interval 1 --memory --swap --disk --network --docker
 ```
 
 ## Metrics
