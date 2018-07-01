@@ -1,0 +1,26 @@
+sudo: required
+
+services:
+  - docker
+
+language: bash
+
+env:
+  global:
+    - COMMIT=${TRAVIS_COMMIT::8}
+    - REPO=stylet/mon-put-instance-data
+
+after_success:
+  - docker build -f Dockerfile -t $REPO:$COMMIT .
+  - docker run --entrypoint="" $REPO:$COMMIT cat /usr/bin/mon-put-instance-data > mon-put-instance-data # Extract binary from image
+  - |
+    if [[ $TRAVIS_TAG && $TRAVIS_TAG =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      docker login -u $DOCKER_USER -p $DOCKER_PASS
+      docker tag $REPO:$COMMIT $REPO:$TRAVIS_TAG # Full version, ex: 1.2.3
+      docker tag $REPO:$COMMIT $REPO:${TRAVIS_TAG%.*} # Minor version, ex: 1.2
+      docker tag $REPO:$COMMIT $REPO:${TRAVIS_TAG%.*.*} # Major version, ex: 1
+      docker tag $REPO:$COMMIT $REPO:latest
+      docker push $REPO
+    else 
+      echo "Skipping deploy due to failed condition: $TRAVIS_TAG"
+    fi
