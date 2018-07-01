@@ -65,3 +65,19 @@ docker run --rm -it --privileged -v /var/run/docker.sock:/var/run/docker.sock:ro
 ## Tutorial
 
 * [Publish Custom Metrics to AWS CloudWatch](http://www.blog.labouardy.com/publish-custom-metrics-aws-cloudwatch/)
+
+## Deveopment
+
+LDE:
+```
+$ docker run -it -v $PWD:/go/src/github.com/mlabouardy/mon-put-instance-data golang
+$ curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+$ dep ensure
+$ go build
+```
+
+Compile binaries:
+```
+$ go get github.com/mitchellh/gox
+$ gox -osarch="linux/amd64 darwin/amd64"
+```
