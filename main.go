@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws/external"
+	"github.com/aws/aws-sdk-go-v2/aws/ec2metadata"
 	. "github.com/mlabouardy/mon-put-instance-data/metrics"
 	. "github.com/mlabouardy/mon-put-instance-data/services"
 	"github.com/urfave/cli"
@@ -80,8 +81,8 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:  "region",
-			Usage: "AWS region",
-			Value: "us-east-1",
+			Usage: "AWS region (default: instance region or us-east-1)",
+			Value: "default",
 		},
 		cli.IntFlag{
 			Name:  "interval",
@@ -127,7 +128,24 @@ func main() {
 			panic("Unable to load SDK config")
 		}
 
-		cfg.Region = c.String("region")
+		if (c.String("region") == "default") {
+			metadataSvc := ec2metadata.New(cfg)
+			if !metadataSvc.Available() {
+				log.Printf("Metadata service cannot be reached. Default us-east-1 region will be used")
+				cfg.Region = "us-east-1"
+			} else {
+				region, err := metadataSvc.Region()
+				if err != nil {
+					panic("Unable to fetch instance region")
+				}
+
+				log.Printf("Region is: %s", region)
+				cfg.Region = region
+			}
+		} else {
+			cfg.Region = c.String("region")
+		}
+
 		cloudWatch := CloudWatchService{
 			Config: cfg,
 		}
