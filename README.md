@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/StyleT/mon-put-instance-data.svg?branch=master)](https://travis-ci.org/StyleT/mon-put-instance-data)
 [![Docker Stars](https://img.shields.io/docker/pulls/mlabouardy/mon-put-instance-data.svg)](https://hub.docker.com/r/stylet/mon-put-instance-data/) 
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE) [![Docker Stars](https://img.shields.io/github/issues/mlabouardy/mon-put-instance-data.svg)](https://github.com/stylet/mon-put-instance-data/issues)  
 
