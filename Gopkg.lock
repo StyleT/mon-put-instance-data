@@ -3,6 +3,12 @@
 
 [[projects]]
   branch = "master"
+  name = "code.cloudfoundry.org/bytefmt"
+  packages = ["."]
+  revision = "b31f603f5e1e047fdb38584e1a922dcc5c4de5c8"
+
+[[projects]]
+  branch = "master"
   name = "github.com/KyleBanks/dockerstats"
   packages = ["."]
   revision = "b5fec062e95314b143fdd732efd0c2b4750aad17"
@@ -90,6 +96,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "02c529e2eadad38db521ee031172186fe114ffcfe45fdd0115f66424f1926826"
+  inputs-digest = "fa7d923ac704761a9cdb87a96b078e6dac0a93a1a0d1780345b4c9b1e8d9c06d"
   solver-name = "gps-cdcl"
   solver-version = 1

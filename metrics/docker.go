@@ -1,32 +1,19 @@
 package metrics
 
 import (
-	"errors"
 	"fmt"
 	"log"
-	"os/exec"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/KyleBanks/dockerstats"
 	"github.com/shirou/gopsutil/docker"
+	"code.cloudfoundry.org/bytefmt"
 )
 
 // Docker metric entity
 type Docker struct{}
 
-// On older systems, the control groups might be mounted on /cgroup
-func getCgroupMountPath() (string, error) {
-	out, err := exec.Command("grep", "-m1", "cgroup", "/proc/mounts").Output()
-	if err != nil {
-		return "", errors.New("Cannot figure out where control groups are mounted")
-	}
-	res := strings.Fields(string(out))
-	if strings.HasPrefix(res[1], "/cgroup") {
-		return "/cgroup", nil
-	}
-	return "/sys/fs/cgroup", nil
-}
 
 //Collect CPU & Memory usage per Docker Container
 func (d Docker) Collect(instanceID string, c *[]cloudwatch.MetricDatum) {
@@ -38,11 +25,6 @@ func (d Docker) Collect(instanceID string, c *[]cloudwatch.MetricDatum) {
 	containerStats, statsErr := dockerstats.Current()
 	if statsErr != nil {
 		log.Fatal(statsErr)
-	}
-
-	base, err := getCgroupMountPath()
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	for _, container := range containers {
@@ -76,17 +58,21 @@ func (d Docker) Collect(instanceID string, c *[]cloudwatch.MetricDatum) {
 			Value: &container.Image,
 		})
 
-		containerMemory, err := docker.CgroupMem(container.ContainerID, fmt.Sprintf("%s/memory/docker", base))
+		var fRamUsage float64 
+		fmt.Sscan(stats.Memory.Percent, &fRamUsage)
+		*c= append(*c, constructMetricDatum("ContainerMemoryUsage", fRamUsage, cloudwatch.StandardUnitPercent, dimensions))
+
+		usedMemoryStr := stats.Memory.Raw[:strings.Index(stats.Memory.Raw, " / ")]
+		usedMemory, err := bytefmt.ToBytes(usedMemoryStr)
 		if err != nil {
 			log.Fatal(err)
 		}
+		*c= append(*c, constructMetricDatum("ContainerMemory", float64(usedMemory), cloudwatch.StandardUnitBytes, dimensions))
 
-		*c= append(*c, constructMetricDatum("ContainerMemory", float64(containerMemory.MemUsageInBytes), cloudwatch.StandardUnitBytes, dimensions))
+		var fCpu float64 
+		fmt.Sscan(stats.CPU, &fCpu)
+		*c= append(*c, constructMetricDatum("ContainerCPUUsage", fCpu, cloudwatch.StandardUnitPercent, dimensions))
 
-		var iCpu float64 
-		fmt.Sscan(stats.CPU, &iCpu)
-		*c= append(*c, constructMetricDatum("ContainerCPUUsage", iCpu, cloudwatch.StandardUnitPercent, dimensions))
-
-		log.Printf("Docker - Container:%s Memory:%v CPU:%v%%\n", container.Name, containerMemory.MemMaxUsageInBytes, iCpu)
+		log.Printf("Docker - Container:%s Memory:%v CPU:%v%%\n", container.Name, usedMemoryStr, fCpu)
 	}
 }

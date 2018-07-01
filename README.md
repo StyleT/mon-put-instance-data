@@ -66,7 +66,7 @@ docker run --rm -it --privileged -v /var/run/docker.sock:/var/run/docker.sock:ro
 
 * [Publish Custom Metrics to AWS CloudWatch](http://www.blog.labouardy.com/publish-custom-metrics-aws-cloudwatch/)
 
-## Deveopment
+## Development
 
 LDE:
 ```
