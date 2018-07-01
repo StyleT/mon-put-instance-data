@@ -1,21 +1,5 @@
-[![Docker Stars](https://img.shields.io/docker/pulls/mlabouardy/mon-put-instance-data.svg)](https://hub.docker.com/r/mlabouardy/mon-put-instance-data/) 
-[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE) [![Docker Stars](https://img.shields.io/github/issues/mlabouardy/mon-put-instance-data.svg)](https://github.com/mlabouardy/mon-put-instance-data/issues)  
-
-## Download
-
-Below are the available downloads for the latest version of CLI (1.0.0). Please download the proper package for your operating system and architecture.
-
-### Linux:
-
-```
-wget https://s3.us-east-1.amazonaws.com/mon-put-instance-data/1.0.0/linux/mon-put-instance-data
-```
-
-### Windows:
-
-```
-wget https://s3.us-east-1.amazonaws.com/mon-put-instance-data/1.0.0/windows/mon-put-instance-data
-```
+[![Docker Stars](https://img.shields.io/docker/pulls/mlabouardy/mon-put-instance-data.svg)](https://hub.docker.com/r/stylet/mon-put-instance-data/) 
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE) [![Docker Stars](https://img.shields.io/github/issues/mlabouardy/mon-put-instance-data.svg)](https://github.com/stylet/mon-put-instance-data/issues)  
 
 ## How to use
 
@@ -68,14 +52,14 @@ docker run --rm -it --privileged -v /var/run/docker.sock:/var/run/docker.sock:ro
     * Errors In/Out
 * Docker
     * Memory Utilization per Container
-    * CPU User/System per Container
+    * CPU usage per Container
 
 ## Supported AMI
 
 * Amazon Linux
 * Amazon Linux 2
 * Ubuntu 16.04
-* Microsoft Windows Server
+* CoreOS
 
 ## Tutorial
 
