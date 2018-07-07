@@ -27,7 +27,7 @@ func (d Docker) Collect(instanceID string, c *[]cloudwatch.MetricDatum) {
 		log.Fatal(statsErr)
 	}
 
-	for _, container := range containers {
+	for ii, container := range containers {
 		var stats dockerstats.Stats
 		for _, v := range containerStats {
 			if strings.HasPrefix(container.ContainerID, v.Container) {
@@ -45,17 +45,17 @@ func (d Docker) Collect(instanceID string, c *[]cloudwatch.MetricDatum) {
 		dimensionKey2 := "ContainerId"
 		dimensions = append(dimensions, cloudwatch.Dimension{
 			Name:  &dimensionKey2,
-			Value: &container.ContainerID,
+			Value: &containers[ii].ContainerID,
 		})
 		dimensionKey3 := "ContainerName"
 		dimensions = append(dimensions, cloudwatch.Dimension{
 			Name:  &dimensionKey3,
-			Value: &container.Name,
+			Value: &containers[ii].Name,
 		})
 		dimensionKey4 := "DockerImage"
 		dimensions = append(dimensions, cloudwatch.Dimension{
 			Name:  &dimensionKey4,
-			Value: &container.Image,
+			Value: &containers[ii].Image,
 		})
 
 		var fRamUsage float64 
